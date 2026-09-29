@@ -1,21 +1,19 @@
 # Studio features
 
-## Shopify friendly content schema types
+## Schema
 
-This studio is built to accommodate both collections and products coming from a Shopify Store.
+- `schemaTypes/documents/`: `product`, `productVariant`, `collection`, the document
+  types Sanity Connect syncs into.
+- `schemaTypes/objects/shopify/`: the read-only `store` objects Connect writes.
 
-You can use the official [Sanity Connect app on Shopify][sanity-shopify] to sync your Shopify collection and products with your dataset. All your data will be available over APIs that you can access with [`@sanity/client`][docs-js-client] or the [HTTP API][docs-http-api].
-
-Inside `/schemaTypes` you'll find schema definitions for all the content types. They are organized in folders:
-
-- `/schemaTypes/documents/`: Document types determines the shape of the JSON documents that's stored in your content lake. This is where you define the content forms for collections, products and product variants.
-- `/schemaTypes/objects/`: Re-usable content structures, such as the read-only Shopify `store` objects synced by Sanity Connect.
+Sanity-authored fields belong on the document types, outside `store`.
 
 ## Shopify metafields
 
-If you've selected metafield namespaces to import in Sanity Connect, your product and collection metafields are synced to `store.metafields` and shown under a **Metafields** fieldset.
-
-Each entry holds the metafield's `namespace`, `key`, Shopify `type` and `value`:
+If metafield namespaces are selected for import in Sanity Connect, product and
+collection metafields are synced to `store.metafields` and shown under a
+**Metafields** fieldset. Each entry holds `namespace`, `key`, Shopify `type` and
+`value`:
 
 ```json
 {
@@ -27,96 +25,39 @@ Each entry holds the metafield's `namespace`, `key`, Shopify `type` and `value`:
 }
 ```
 
-`value` isn't declared on the `shopifyMetafield` schema type. Its shape follows the Shopify metafield type — a string, number, boolean, list or object — and no Sanity field type accepts all of those. `/components/inputs/ShopifyMetafield.tsx` reads it from the raw value instead.
+`value` isn't declared on the `shopifyMetafield` schema type, because its shape
+follows the metafield type and no single Sanity field type accepts all of them.
+`components/inputs/ShopifyMetafield.tsx` reads it from the raw value, and
+`utils/formatMetafieldValue.ts` formats it by type, falling back to the raw value.
+Shopify's [list of data types](https://shopify.dev/docs/apps/build/custom-data/metafields/list-of-data-types)
+gives the shape of every value.
 
-`/utils/formatMetafieldValue.ts` decides how a value is shown, using a small map keyed by metafield type. `dimension`, `weight`, `volume`, `money`, `rating` and `list.single_line_text_field` are there as examples.
-
-Anything not listed falls back to the raw value — a string as-is, anything else as JSON — so your own metafields still display. To show one of them nicely, add an entry to `formatters`. Shopify's [list of data types](https://shopify.dev/docs/apps/build/custom-data/metafields/list-of-data-types) gives the shape of every value.
-
-Metafields are read-only and the whole array is replaced on every sync, so edits made here are overwritten. Variant metafields and metaobjects aren't synced.
+Metafields are read-only and the whole array is replaced on every sync. Variant
+metafields and metaobjects aren't synced.
 
 ## Structure
 
-Sanity Studio will automatically list all your [document types][docs-document-types] out of the box. Sometimes you want a more streamlined editor experience. That's why you'll find a custom [structure][docs-structure] that's defined in `/structure`. It does the following things:
+`structure/` groups each product's details and its variants under **Products**,
+next to **Collections**.
 
-- Groups product information and variants by individual products for more convenient editing
+## Document actions
 
-## Custom document actions
+In `plugins/customDocumentActions/`. Synced types can't be created or duplicated
+in the Studio.
 
-Custom document actions let you override the default behavior of the publish button. The included document actions adds to the menu that you can find by pushing the chevron right to a document's publish button.
+- **Delete** (`shopifyDelete.tsx`) is offered only when Shopify reports the
+  product or collection as deleted (`store.isDeleted`). It removes the Sanity
+  document, its draft, and (for products) its variant documents. Nothing in
+  Shopify is deleted.
+- **Edit in Shopify** (`shopifyLink.ts`) opens the resource in Shopify admin. It,
+  the navbar Shopify button, and the "View this product on Shopify" link only
+  appear once `SHOPIFY_STORE_ID` is set in `constants.ts`.
 
-You can find these in `/plugins/customDocumentActions/`.
+## Inputs and previews
 
-Read more about [document actions][docs-document-actions].
-
-### Delete product and variants
-
-<p><img width="400" src="https://user-images.githubusercontent.com/209129/173621376-66dc614d-a8ef-4d05-9e23-56806bf63a60.png"></p>
-
-`/plugins/customDocumentActions/shopifyDelete.tsx`
-
-Delete a product document including all its associated variants in your Sanity Content Lake. Without this document action, one would have to delete all variant documents one-by-one.
-
-### Edit in Shopify shortcut
-
-<p><img width="280" src="https://user-images.githubusercontent.com/209129/173621897-cfe069e9-4719-4433-b78b-f932d079fce3.png"></p>
-
-`/plugins/customDocumentActions/shopifyLink.ts`
-
-A shortcut to edit the current product or product variant in Shopify in a new window. You'll need to set your Shopify admin domain in `constants.ts`.
-
-## Custom input and preview components
-
-### Shopify document status (for collections, products and product variants)
-
-<p><img width="476" src="https://user-images.githubusercontent.com/209129/141304763-8b08d0d8-93d6-4c26-bde3-224857d45468.png" /></p>
-
-`/components/inputs/CollectionHidden.tsx`
-`/components/inputs/ProductHidden.tsx`
-`/components/inputs/ProductVariantHidden.tsx`
-
-Display-only input fields that show the corresponding document's status in Shopify.
-
-For instance, if a product has been deleted from Shopify or has its status set to `draft` or `active`.
-
-### Proxy string input
-
-<p><img width="450" src="https://user-images.githubusercontent.com/209129/173626714-1e18da84-27ce-46aa-8fc6-b286797544e4.png"></p>
-
-`/components/inputs/ProxyString.tsx`
-
-A simple wrapper around a regular [String input field](string-input) that displays the value of another field as a read-only input.
-
-Since we are using certain product fields from Shopify as the source of truth (such as product title, slug and preview images) and store these in a separate `store` object, these proxy string inputs are used to better surface deeply nested fields to editors.
-
-**Usage**
-
-```javascript
-defineField({
-  title: 'Slug',
-  name: 'slugProxy',
-  type: 'proxyString',
-  options: {field: 'store.slug.current'},
-})
-```
-
-### Shopify document status (preview component)
-
-<p><img width="320" alt="image 5" src="https://user-images.githubusercontent.com/209129/173627554-91c60bb4-dac7-460b-b5c6-de45d3cfa9b0.png"></p>
-
-`/components/media/ShopifyDocumentStatus.tsx`
-
-A custom preview component that will display collection, product and product variant images defined in `store.previewImageUrl`.
-
-By default, Sanity Connect will populate these fields with the default image from Shopify. These images are not re-uploaded into your dataset and instead reference Shopify's CDN directly.
-
-This preview component also has visual states for when a product is _unavailable_ in Shopify (e.g. if it has a non-active status), or if it's been removed from Shopify altogether.
-
-Sanity Connect will never delete your collection, product and product variant documents.
-
-[docs-structure]: https://www.sanity.io/docs/structure-builder
-[docs-document-actions]: https://www.sanity.io/docs/document-actions
-[docs-document-types]: https://www.sanity.io/docs/schema-types
-[docs-http-api]: https://www.sanity.io/docs/http-api
-[docs-js-client]: https://www.sanity.io/docs/js-client
-[sanity-shopify]: https://apps.shopify.com/sanity-connect
+- `components/inputs/*Hidden.tsx` are display-only banners shown when a document is
+  deleted from Shopify or not `active` there.
+- `components/inputs/ProxyString.tsx` shows a nested `store` value (title, handle)
+  as a locked field.
+- `components/media/ShopifyDocumentStatus.tsx` is the list preview. It uses the
+  Shopify CDN image and marks deleted or inactive documents.

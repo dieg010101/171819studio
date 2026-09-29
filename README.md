@@ -1,81 +1,38 @@
-# Sanity Studio for Shopify Projects
+# seventeeneighteennineteen — Sanity Studio
 
-<img width="1072" alt="Sanity Studio with Shopify products" src="https://github.com/sanity-io/learn/assets/9684022/13aed6ff-a028-4c3f-bc4b-15bf9ba4c6ff">
+Sanity Studio for the 171819 store (project `xeq84p11`, dataset `production`).
 
-## About
+The storefront is a custom **Shopify Online Store 2.0 Liquid theme** (the sibling
+`skeleton-theme-main` repo). It is not headless.
 
-This Sanity Studio is configured for headless Shopify projects that use the official [Sanity Connect app][sanity-shopify], allowing you to extend Shopify products and collections with your own rich editorial content.
+## Ownership
 
-It contains examples of customizing your [structure][docs-structure], [document actions][docs-document-actions] and [input components][docs-input-components].
+- **Shopify owns commerce:** products, variants, prices, inventory, collections,
+  checkout, SEO, and ordinary pages/policies.
+- **Sanity owns enriched/editorial content** that Shopify cannot model well, added
+  to the synced documents as Sanity-authored fields.
 
-This studio can be used with any front end, or anywhere else you want your e-commerce content to go.
+## What is in the Studio
 
-## Features
+- **Products** → Details / Variants, and **Collections**, synced from Shopify by the
+  [Sanity Connect](https://apps.shopify.com/sanity-connect) app.
+- Synced Shopify data lives in each document's read-only `store` object. Never
+  edit it here; Connect overwrites it on every sync.
 
-This studio comes configured with Shopify-friendly content schema types and a whole host of customizations to make managing Shopify data in your Sanity studio easier.
+See [docs/features.md](docs/features.md) for the Studio customizations.
 
-**[View studio features][studio-features]**
-
-## Assumptions
-
-No two custom storefronts are the same, and we've taken a few strong opinions on how we've approached this studio.
-
-- Synced Shopify data for `collection`, `product` and `productVariant` documents are stored in a read-only object, `store`
-- Shopify is the source of truth for both product titles, slugs (handles) and thumbnail images
-- Shopify is the source of truth for collections
-- Sanity is used as an additional presentational layer to add custom metadata to both Shopify collections and products
-- Some images (such as product and cart line item thumbnails) are served by Shopify's CDN whilst images uploaded in the studio are handled by Sanity's Image API
-- We only concern ourselves with incoming data from Shopify _collections_, _products_ and _product variants_
-
-We believe these rules work well for simpler use cases, and keeping product titles, images and slugs handled by Shopify helps keep content consistent as you navigate from your product views to the cart and ultimately checkout. Managing collections in Shopify gives you the flexibility to take full advantage of manual and automated collections.
-
-You may have differing opinions on how content best be modeled to fit your particular needs – this is normal and encouraged! Fortunately, Sanity was built with this flexibility in mind, and we've written [a guide on structured content patterns of e-commerce][structured-content-patterns] which may help inform how to tackle this challenge.
-
-## Setup
-
-If you're reading this on GitHub, chances are you haven't initialized the studio locally yet. To do so, run the following shell command:
+## Commands
 
 ```sh
-# run a one-off initializing script:
-npx @sanity/cli init --template shopify
+npm run dev       # local Studio
+npm run build     # production build
+npm run deploy    # deploy the hosted Studio
 ```
 
-Make sure to run the tagged release! (`@sanity/cli`)
-
-## Local Development
-
-### Starting development server
+Validation:
 
 ```sh
-npm run dev
+npx --no-install tsc --noEmit --incremental false
+npx --no-install sanity schema validate
+npx --no-install eslint .
 ```
-
-### Deploying the studio
-
-```sh
-npm run deploy
-```
-
-### Upgrading Sanity Studio
-
-```sh
-npm run upgrade
-```
-
-If you have the [Sanity CLI][docs-cli] installed, you can also run this with `sanity start|deploy|upgrade`. It comes with additional useful functionality.
-
-## License
-
-This repository is published under the [MIT](license) license.
-
-[docs-cli]: https://www.sanity.io/docs/cli
-[docs-custom-input-components]: https://www.sanity.io/docs/custom-input-components
-[docs-structure]: https://www.sanity.io/docs/structure-builder
-[docs-document-actions]: https://www.sanity.io/docs/document-actions
-[docs-input-components]: https://www.sanity.io/docs/custom-input-widgets
-[docs-string-input]: https://www.sanity.io/docs/string-type
-[hydrogen-demo]: https://github.com/sanity-io/hydrogen-sanity-demo
-[license]: https://github.com/sanity-io/sanity/blob/next/LICENSE
-[sanity-shopify]: https://apps.shopify.com/sanity-connect
-[structured-content-patterns]: https://www.sanity.io/guides/structured-content-patterns-for-e-commerce
-[studio-features]: docs/features.md

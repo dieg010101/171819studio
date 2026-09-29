@@ -27,6 +27,13 @@ export default (props: ShopifyDocumentActionProps): DocumentActionDescription | 
   const toast = useToast()
   const client = useClient({apiVersion: SANITY_API_VERSION})
 
+  // Cleanup only. A document whose Shopify resource still exists may hold
+  // Sanity-authored content, and Sanity Connect would recreate it bare anyway.
+  // (After the hooks above, which must run on every render.)
+  if (draft?.store?.isDeleted !== true && published?.store?.isDeleted !== true) {
+    return
+  }
+
   let dialog: DocumentActionConfirmDialogProps | null = null
 
   if (type === 'product') {
