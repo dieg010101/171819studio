@@ -1,6 +1,5 @@
-import {defineArrayMember, defineField, defineType} from 'sanity'
+import {defineField, defineType} from 'sanity'
 import {PackageIcon} from '@sanity/icons/Package'
-import {getExtension} from '@sanity/asset-utils'
 import pluralize from 'pluralize-esm'
 import CollectionHiddenInput from '../../components/inputs/CollectionHidden'
 import ShopifyDocumentStatus from '../../components/media/ShopifyDocumentStatus'
@@ -37,70 +36,11 @@ export const collectionType = defineType({
       options: {field: 'store.slug.current'},
     }),
     defineField({
-      name: 'colorTheme',
-      type: 'reference',
-      to: [{type: 'colorTheme'}],
-      group: 'theme',
-    }),
-    defineField({
-      name: 'vector',
-      title: 'Vector artwork',
-      type: 'image',
-      description: 'Displayed in collection links using color theme',
-      options: {
-        accept: 'image/svg+xml',
-      },
-      group: 'theme',
-      validation: (Rule) =>
-        Rule.custom((image) => {
-          if (!image?.asset?._ref) {
-            return true
-          }
-
-          const format = getExtension(image.asset._ref)
-
-          if (format !== 'svg') {
-            return 'Image must be an SVG'
-          }
-          return true
-        }),
-    }),
-    defineField({
-      name: 'showHero',
-      type: 'boolean',
-      description: 'If disabled, page title will be displayed instead',
-      group: 'editorial',
-    }),
-    defineField({
-      name: 'hero',
-      type: 'hero',
-      hidden: ({document}) => !document?.showHero,
-      group: 'editorial',
-    }),
-    defineField({
-      name: 'modules',
-      type: 'array',
-      description: 'Editorial modules to associate with this collection',
-      of: [
-        defineArrayMember({type: 'callout'}),
-        defineArrayMember({type: 'callToAction'}),
-        defineArrayMember({type: 'image'}),
-        defineArrayMember({type: 'instagram'}),
-      ],
-      group: 'editorial',
-    }),
-    defineField({
       name: 'store',
       title: 'Shopify',
       type: 'shopifyCollection',
       description: 'Collection data from Shopify (read-only)',
       group: 'shopifySync',
-    }),
-    defineField({
-      name: 'seo',
-      title: 'SEO',
-      type: 'seo',
-      group: 'seo',
     }),
   ],
   orderings: [

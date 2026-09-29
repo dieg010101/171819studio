@@ -5,8 +5,6 @@ import {schemaTypes} from './schemaTypes'
 import {structure} from './structure'
 
 import {visionTool} from '@sanity/vision'
-import {colorInput} from '@sanity/color-input'
-import {imageHotspotArrayPlugin} from 'sanity-plugin-hotspot-array'
 import {media, mediaAssetSource} from 'sanity-plugin-media'
 import {customDocumentActions} from './plugins/customDocumentActions'
 import Navbar from './components/studio/Navbar'
@@ -22,8 +20,6 @@ export default defineConfig({
 
   plugins: [
     structureTool({structure}),
-    colorInput(),
-    imageHotspotArrayPlugin(),
     customDocumentActions(),
     media(),
     ...(isDev ? devOnlyPlugins : []),

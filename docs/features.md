@@ -8,9 +8,8 @@ You can use the official [Sanity Connect app on Shopify][sanity-shopify] to sync
 
 Inside `/schemaTypes` you'll find schema definitions for all the content types. They are organized in folders:
 
-- `/schemaTypes/annotations/`: Annotations let editors mark up inline text in the block content editor with rich objects. These can be used to augment editorial content with product information.
-- `/schemaTypes/documents/`: Document types determines the shape of the JSON documents that's stored in your content lake. This is where you define the content forms for things like collections, products, product variants, as well as articles.
-- `/schemaTypes/objects/`: General purpose & re-usable content structures, such as links, custom product options and modules.
+- `/schemaTypes/documents/`: Document types determines the shape of the JSON documents that's stored in your content lake. This is where you define the content forms for collections, products and product variants.
+- `/schemaTypes/objects/`: Re-usable content structures, such as the read-only Shopify `store` objects synced by Sanity Connect.
 
 ## Shopify metafields
 
@@ -41,47 +40,6 @@ Metafields are read-only and the whole array is replaced on every sync, so edits
 Sanity Studio will automatically list all your [document types][docs-document-types] out of the box. Sometimes you want a more streamlined editor experience. That's why you'll find a custom [structure][docs-structure] that's defined in `/structure`. It does the following things:
 
 - Groups product information and variants by individual products for more convenient editing
-- Creates a singleton document for controlling a homepage with custom editorial modules.
-- Creates a singleton document for settings to control navigation and global content
-- Lists general purpose pages for other editorial content
-
-## Custom modules
-
-### Call to action
-
-<p><img width="600" src="https://user-images.githubusercontent.com/209129/173630522-1251875d-175d-430a-bdc7-8923ebe08044.png"></p>
-
-`/schemaTypes/objects/module/callToAction.tsx`
-
-### Callout
-
-<p><img width="600"src="https://user-images.githubusercontent.com/209129/173630517-003a6942-b45e-48d4-8ec6-d87365e957c7.png"></p>
-
-`/schemaTypes/objects/module/callout.tsx`
-
-### Collection
-
-<p><img width="600" src="https://user-images.githubusercontent.com/209129/173630535-73eab084-f424-435f-b426-7fbc9baed152.png"></p>
-
-`/schemaTypes/objects/module/collection.tsx`
-
-### Image
-
-<p><img width="600" src="https://user-images.githubusercontent.com/209129/174492490-aefa1a0d-40ea-473d-be73-ba6326d66ee8.png"></p>
-
-`/schemaTypes/objects/module/image.ts`
-
-### Instagram
-
-<p><img width="600" src="https://user-images.githubusercontent.com/209129/173630524-b8b7253f-704a-4935-9b66-1c5673477b1c.png"></p>
-
-`/schemaTypes/objects/module/instagram.ts`
-
-### Product
-
-<p><img width="600" src="https://user-images.githubusercontent.com/209129/173630533-b4a202bd-6385-4eef-a7e2-c67ba596dad1.png"></p>
-
-`/schemaTypes/objects/module/product.tsx`
 
 ## Custom document actions
 
@@ -108,24 +66,6 @@ Delete a product document including all its associated variants in your Sanity C
 A shortcut to edit the current product or product variant in Shopify in a new window. You'll need to set your Shopify admin domain in `constants.ts`.
 
 ## Custom input and preview components
-
-### Placeholder string input
-
-<p><img width="450" alt="image" src="https://user-images.githubusercontent.com/209129/173622133-30b1c1c4-f512-404b-a28f-56ce456e33c8.png"></p>
-
-`/components/inputs/PlaceholderString.tsx`
-
-A simple wrapper around a regular [string input](string-input) that uses the value of another field as a placeholder.
-
-**Usage:**
-
-```javascript
-defineField({
-  name: 'title',
-  type: 'placeholderString',
-  options: { field: 'store.title' }
-}),
-```
 
 ### Shopify document status (for collections, products and product variants)
 

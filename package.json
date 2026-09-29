@@ -15,8 +15,6 @@
     "sanity"
   ],
   "dependencies": {
-    "@sanity/asset-utils": "^2.3.0",
-    "@sanity/color-input": "^6.0.6",
     "@sanity/icons": "^5.0.0",
     "@sanity/ui": "^3.5.0",
     "@sanity/vision": "^6.16.0",
@@ -25,13 +23,11 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sanity": "^6.16.0",
-    "sanity-plugin-hotspot-array": "^5.0.11",
     "sanity-plugin-media": "^4.3.1",
     "slug": "^8.2.2",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
-    "@portabletext/types": "^2.0.2",
     "@sanity/eslint-config-studio": "^7",
     "@types/lodash.get": "^4.4.7",
     "@types/react": "^19.2.14",

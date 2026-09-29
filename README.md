@@ -14,8 +14,6 @@ This studio can be used with any front end, or anywhere else you want your e-com
 
 This studio comes configured with Shopify-friendly content schema types and a whole host of customizations to make managing Shopify data in your Sanity studio easier.
 
-It also comes with several convenient layout modules which can be re-used across various pages.
-
 **[View studio features][studio-features]**
 
 ## Assumptions
@@ -26,9 +24,7 @@ No two custom storefronts are the same, and we've taken a few strong opinions on
 - Shopify is the source of truth for both product titles, slugs (handles) and thumbnail images
 - Shopify is the source of truth for collections
 - Sanity is used as an additional presentational layer to add custom metadata to both Shopify collections and products
-  - For products: this includes a portable text field with support for editorial modules
-  - For collections: this includes a customizable array of editorial modules
-- Some images (such as product and cart line item thumbnails) are served by Shopify's CDN whilst other images (such as those served in editorial modules) are handled by Sanity's Image API
+- Some images (such as product and cart line item thumbnails) are served by Shopify's CDN whilst images uploaded in the studio are handled by Sanity's Image API
 - We only concern ourselves with incoming data from Shopify _collections_, _products_ and _product variants_
 
 We believe these rules work well for simpler use cases, and keeping product titles, images and slugs handled by Shopify helps keep content consistent as you navigate from your product views to the cart and ultimately checkout. Managing collections in Shopify gives you the flexibility to take full advantage of manual and automated collections.
