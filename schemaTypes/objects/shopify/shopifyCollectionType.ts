@@ -36,6 +36,12 @@ export const shopifyCollectionType = defineField({
     }),
     defineField({
       fieldset: 'status',
+      name: 'shopifyTriggeredAt',
+      title: 'Shopify triggered at',
+      type: 'string',
+    }),
+    defineField({
+      fieldset: 'status',
       name: 'isDeleted',
       title: 'Deleted from Shopify?',
       type: 'boolean',
@@ -87,6 +93,10 @@ export const shopifyCollectionType = defineField({
     defineField({
       name: 'sortOrder',
       type: 'string',
+    }),
+    defineField({
+      name: 'shop',
+      type: 'shop',
     }),
     defineField({
       fieldset: 'metafields',

@@ -20,6 +20,14 @@ export const SHOPIFY_DOCUMENT_TYPES = ['product', 'productVariant', 'collection'
 // https://www.sanity.io/help/studio-client-specify-api-version
 export const SANITY_API_VERSION = '2022-10-25'
 
+// API version for the Size Guide claim checks (product picker filter and
+// validator). Pinned separately because SANITY_API_VERSION predates 2025-02-19,
+// when the default perspective changed from `raw` to `published`, and the
+// Shopify delete action relies on the old default to see unpublished variants.
+// The Size Guide client always sets `perspective: 'raw'` explicitly.
+// https://www.sanity.io/docs/content-lake/api-versioning
+export const SIZE_GUIDE_API_VERSION = '2026-10-03'
+
 // Your Shopify store ID.
 // This is the ID in your Shopify admin URL (e.g. 'my-store-name' in https://admin.shopify.com/store/my-store-name).
 // You only need to provide the ID, not the full URL.

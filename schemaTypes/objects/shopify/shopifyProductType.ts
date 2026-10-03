@@ -51,11 +51,18 @@ export const shopifyProductType = defineField({
     }),
     defineField({
       fieldset: 'status',
+      name: 'shopifyTriggeredAt',
+      title: 'Shopify triggered at',
+      type: 'string',
+    }),
+    defineField({
+      fieldset: 'status',
       name: 'status',
       type: 'string',
       options: {
         layout: 'dropdown',
-        list: ['active', 'archived', 'draft'],
+        // Every status Sanity Connect can sync.
+        list: ['active', 'archived', 'draft', 'unlisted', 'unknown'],
       },
     }),
     defineField({
@@ -106,6 +113,10 @@ export const shopifyProductType = defineField({
       fieldset: 'organization',
       name: 'tags',
       type: 'string',
+    }),
+    defineField({
+      name: 'shop',
+      type: 'shop',
     }),
     defineField({
       name: 'priceRange',

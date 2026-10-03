@@ -4,13 +4,42 @@ import {
   defineArrayMember,
   defineField,
   defineType,
+  getDraftId,
   getPublishedId,
   type Path,
+  type ReferenceFilterResolverContext,
+  type SanityClient,
   type ValidationContext,
 } from 'sanity'
-import {SANITY_API_VERSION} from '../../constants'
+import {SIZE_GUIDE_API_VERSION} from '../../constants'
 
 type ProductReference = {_key?: string; _ref?: string}
+
+// Every other size guide that can claim a product: published and draft
+// documents, never this guide's own published/draft pair. Content Release
+// versions (`versions.*`) are left out: until a release is published, the
+// published and draft guides are what the storefront and editors work from.
+// Shared by the product picker and the validator so both agree on what a claim is.
+const OTHER_GUIDES = `*[
+  _type == "sizeGuide"
+  && !(_id in $ownIds)
+  && !(_id in path("versions.**"))
+]`
+
+// A raw-perspective, uncached client, so drafts count as claims and a product
+// removed from another guide becomes available as soon as that edit saves.
+function claimClient(getClient: (options: {apiVersion: string}) => SanityClient) {
+  return getClient({apiVersion: SIZE_GUIDE_API_VERSION}).withConfig({
+    perspective: 'raw',
+    useCdn: false,
+  })
+}
+
+// This guide's own IDs, whether it is open as published, draft or a release version.
+function ownIds(documentId: string) {
+  const id = getPublishedId(documentId)
+  return [id, getDraftId(id)]
+}
 
 // Synced to Shopify by Sanity Connect as the `sizeGuide` metaobject: `products`
 // becomes a list of Product references (used by the theme to find a product's
@@ -54,15 +83,7 @@ export const sizeGuideType = defineType({
           options: {
             // Products are created by Sanity Connect only.
             disableNew: true,
-            // Hide products deleted from Shopify and ones already in this list.
-            filter: ({parent}) => ({
-              filter: 'store.isDeleted != true && !(_id in $selected)',
-              params: {
-                selected: ((parent as ProductReference[] | undefined) ?? [])
-                  .map((item) => item?._ref)
-                  .filter(Boolean),
-              },
-            }),
+            filter: filterAvailableProducts,
           },
           validation: (rule) => [
             rule.custom(validateNotInOtherGuide),
@@ -179,29 +200,54 @@ function findDuplicates(items: {name: unknown; path: Path}[], message: (name: st
   return errors.length ? errors : true
 }
 
-// One size guide per product, so the storefront never has to choose. Checks the
-// published and draft versions of every other guide; this guide's own draft and
-// published IDs are excluded.
+// Picker search only: hides products deleted from Shopify, products already in
+// this list, and products claimed by another guide (see OTHER_GUIDES). Selected
+// products still render. Filters do not enforce anything, so
+// validateNotInOtherGuide below remains the real check.
+async function filterAvailableProducts({
+  document,
+  parent,
+  getClient,
+}: ReferenceFilterResolverContext) {
+  const selected = ((parent as ProductReference[] | undefined) ?? [])
+    .map((item) => item?._ref)
+    .filter((ref): ref is string => typeof ref === 'string')
+
+  let claimed: string[] = []
+  try {
+    claimed = await claimClient(getClient).fetch<string[]>(
+      `array::compact(${OTHER_GUIDES}.products[]._ref)`,
+      {ownIds: ownIds(document._id)},
+    )
+  } catch (error) {
+    // Still offer the other products; the validator rejects a claimed one.
+    console.warn('Size guide: could not load products assigned to other guides.', error)
+  }
+
+  // Both ID forms, in case search returns a product's draft.
+  const hidden = [...new Set([...selected, ...claimed].map(getPublishedId))]
+  return {
+    filter: 'store.isDeleted != true && !(_id in $hidden)',
+    params: {hidden: hidden.flatMap((id) => [id, getDraftId(id)])},
+  }
+}
+
+// One size guide per product, so the storefront never has to choose.
 async function validateNotInOtherGuide(value: unknown, context: ValidationContext) {
   const ref = (value as ProductReference | undefined)?._ref
   const documentId = context.document?._id
   if (!ref || !documentId) return true
 
-  const id = getPublishedId(documentId)
-  const {productTitle, guides} = await context
-    .getClient({apiVersion: SANITY_API_VERSION})
-    .fetch<{productTitle: string | null; guides: {_id: string; title?: string}[]}>(
-      `{
-        "productTitle": *[_id == $ref][0].store.title,
-        "guides": *[
-          _type == "sizeGuide"
-          && !(_id in [$id, "drafts." + $id])
-          && !(_id in path("versions.**"))
-          && $ref in products[]._ref
-        ]{_id, title}
-      }`,
-      {ref, id},
-    )
+  const {productTitle, guides} = await claimClient(context.getClient).fetch<{
+    productTitle: string | null
+    guides: {_id: string; title?: string}[]
+  }>(
+    `{
+      "productTitle": *[_id == $ref][0].store.title,
+      "guides": ${OTHER_GUIDES}[$ref in products[]._ref]{_id, title}
+    }`,
+    {ref, ownIds: ownIds(documentId)},
+  )
   if (!guides.length) return true
 
   // A guide with both a draft and a published version is the same guide.
@@ -224,12 +270,10 @@ async function validateProductAvailable(value: unknown, context: ValidationConte
   const ref = (value as ProductReference | undefined)?._ref
   if (!ref) return true
 
-  const product = await context
-    .getClient({apiVersion: SANITY_API_VERSION})
-    .fetch<{title?: string; isDeleted?: boolean} | null>(
-      `*[_id == $ref][0]{"title": store.title, "isDeleted": store.isDeleted}`,
-      {ref},
-    )
+  const product = await claimClient(context.getClient).fetch<{
+    title?: string
+    isDeleted?: boolean
+  } | null>(`*[_id == $ref][0]{"title": store.title, "isDeleted": store.isDeleted}`, {ref})
   if (!product) {
     return 'This product no longer exists in Sanity. Remove it from this guide.'
   }

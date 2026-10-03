@@ -38,7 +38,8 @@ export const shopifyProductVariantType = defineField({
       type: 'string',
       options: {
         layout: 'dropdown',
-        list: ['active', 'archived', 'draft'],
+        // Every status Sanity Connect can sync.
+        list: ['active', 'archived', 'draft', 'unlisted', 'unknown'],
       },
       validation: (Rule) => Rule.required(),
     }),
@@ -55,6 +56,10 @@ export const shopifyProductVariantType = defineField({
     defineField({
       name: 'sku',
       title: 'SKU',
+      type: 'string',
+    }),
+    defineField({
+      name: 'barcode',
       type: 'string',
     }),
     defineField({
@@ -108,6 +113,10 @@ export const shopifyProductVariantType = defineField({
       fieldset: 'options',
       name: 'option3',
       type: 'string',
+    }),
+    defineField({
+      name: 'shop',
+      type: 'shop',
     }),
     // Preview Image URL
     defineField({

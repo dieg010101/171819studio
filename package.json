@@ -9,7 +9,11 @@
     "deploy": "sanity deploy",
     "deploy-graphql": "sanity graphql deploy",
     "dev": "sanity dev",
-    "start": "sanity start"
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "schema:validate": "sanity schema validate",
+    "start": "sanity start",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "sanity"
