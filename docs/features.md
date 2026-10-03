@@ -8,6 +8,16 @@
 
 Sanity-authored fields belong on the document types, outside `store`.
 
+## Size guides
+
+`schemaTypes/documents/sizeGuide.ts`, listed under **Size Guides**. A guide holds
+weak references to the products that use it (`products`) and its measurements
+(`data`: `sizes`, `measurements` rows of `label` + `values` in centimetres, and
+`note`). Validation blocks publishing when a product is in another guide or a
+row's value count differs from the number of sizes. Sanity Connect syncs it to
+the `app--6007307--sanity-documents-sizeGuide` metaobject, which
+`sections/product.liquid` in the theme reads.
+
 ## Shopify metafields
 
 If metafield namespaces are selected for import in Sanity Connect, product and

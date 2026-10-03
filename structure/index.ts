@@ -1,6 +1,7 @@
 import {ListItemBuilder, StructureResolver} from 'sanity/structure'
 import collections from './collectionStructure'
 import products from './productStructure'
+import sizeGuides from './sizeGuideStructure'
 
 /**
  * Structure overrides
@@ -22,7 +23,7 @@ const hiddenDocTypes = (listItem: ListItemBuilder) => {
     return false
   }
 
-  return !['collection', 'media.tag', 'product', 'productVariant'].includes(id)
+  return !['collection', 'media.tag', 'product', 'productVariant', 'sizeGuide'].includes(id)
 }
 
 export const structure: StructureResolver = (S, context) =>
@@ -32,5 +33,6 @@ export const structure: StructureResolver = (S, context) =>
       products(S, context),
       collections(S, context),
       S.divider(),
+      sizeGuides(S, context),
       ...S.documentTypeListItems().filter(hiddenDocTypes),
     ])

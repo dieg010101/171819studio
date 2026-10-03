@@ -8,6 +8,7 @@ import {shopifyMetafieldType} from './objects/shopify/shopifyMetafieldType'
 import {shopifyProductType} from './objects/shopify/shopifyProductType'
 import {shopifyProductVariantType} from './objects/shopify/shopifyProductVariantType'
 import {shopType} from './objects/shopify/shopType'
+import {sizeGuideMeasurementType} from './objects/sizeGuideMeasurementType'
 
 const objects = [
   collectionRuleType,
@@ -20,12 +21,14 @@ const objects = [
   shopifyProductType,
   shopifyProductVariantType,
   shopType,
+  sizeGuideMeasurementType,
 ]
 
 import {collectionType} from './documents/collection'
 import {productType} from './documents/product'
 import {productVariantType} from './documents/productVariant'
+import {sizeGuideType} from './documents/sizeGuide'
 
-const documents = [collectionType, productType, productVariantType]
+const documents = [collectionType, productType, productVariantType, sizeGuideType]
 
 export const schemaTypes = [...objects, ...documents]
